@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset ="utf-8">
+	<title>carros</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<script src="https://code.jquery.com/jquery-3.2.1.min.js" ></script>
+	<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+</head>
+
+<body onload="cargarTodo();" background= 'https://assets.bugatti.com/fileadmin/user_upload/Web/Pages/Models/Super_Sport/BUG_super_sport_03.jpg'>
+	<h2 align="center" style="color:lightblue;">Los verdaderos carros</h2>
+	<style>
+		.table {
+			color:white;
+			font-weight:800;
+		}
+	</style>
+	<div class="container" style="margin:10px;">
+		<div id="divModelos">
+    		<h3>Modelos</h3>
+    		<table class="datatable table">
+                <thead>
+    				<tr>
+    					<th>Marca</th>
+    					<th>Modelo</th>
+    				</tr>
+    			</thead>
+    			<tbody id="divListaDeModelos">
+    			</tbody>
+    		</table>
+    		<button onclick="agregarModelos(['','']);" class="btn btn-primary">+</button>
+    		<button onclick="guardarModelos();" class="btn btn-success">guardar</button>
+    		<button onclick="irAlinicio();" class="btn btn-default">Regresar</button>
+	    </div>
+		<div id="divMarcas">
+		    <h3>Marcas</h3>
+	        <div id="divListaDeMarcas"></div>
+			<button onclick="agregarMarcas('');" class="btn btn-primary">+</button>
+			<button onclick="guardarMarcas();" class="btn btn-success">guardar</button>
+			<button onclick="irAlinicio();" class="btn btn-default">Regresar</button>
+		</div>
+		<div class="row" id="divVehiclos">
+		    <div class="col col-sm-6">
+			    <form method="">
+    		        <div class="input-group form-group">
+    		            <span class="input-group-addon"> Matricula</span>
+    		            <input id="matricula" class="form-control"/>
+    		        </div>
+        		    <div class="input-group form-group">
+        		        <span class="input-group-addon"> Marca</span>
+        			    <select onchange="filtrarModelos(this.value);" id="marca" class="form-control"></select>
+        		    </div>
+        			<div class="input-group form-group">
+        			    <span class="input-group-addon"> Modelo</span>
+        		        <select id="modelo" class="form-control"></select>
+        		    </div>
+        		    <div class="input-group form-group">
+        		        <span class="input-group-addon">Transmision</span>
+        		        <span class="input-group-addon">
+        			        <label><input type="radio" name="transmision" id="automatica" value="AT">Auto</label>
+        			    </span>
+        		        <span class="input-group-addon">
+        		            <label><input type="radio" name="transmision" id="mecanica" value="ME">Meca</label>
+        		        </span>
+        		    </div>
+        		    <div class="input-group form-group">
+        			    <span class="input-group-addon">Comentario</span>
+        			    <textarea class="form-control" id="comentario"></textarea>
+        			</div>
+    		        <div>
+        		        <button type="button" onclick="guardarVehiculo()" class="btn btn-primary">Guardar</button>
+        			    <button type="button" onclick="Limpiar();" class="btn btn-success">Nuevo</button>
+        			    <button type="button" onclick="Emarcas();" class="btn btn-default">Marcas</button>
+        			    <button type="button" onclick="Emodelos();" class="btn btn-default">Modelos</button>
+    			    </div>
+                </form>
+		    </div>
+		    <div class="col cols-sm-6">
+			    <table class="datatable table">
+    			    <thead>
+    			        <tr>
+                            <th>Matricula</th>
+                            <th>Marca</th>
+                            <th>Modelo</th>
+                            <th>Transmision</th>
+                            <th>Comentario</th>
+                            <th>Accion</th>
+                        </tr>
+    			    </thead>
+    			    <tbody id="tbDestino"></tbody>
+			    </table>
+		   </div>
+	    </div>
+	</div>
+	<script>
+		
+		var datos={
+		vehiculos:[],
+		marcas:[],
+		modelos:[]		
+		}
+		
+		var veh_editado= null;
+		
+		$("#divMarcas").hide();
+		$("#divModelos").hide();
+		
+		 function guardarVehiculo(){
+			matricula=$("#matricula").val();
+			marca=$("#marca").val();
+			modelo=$("#modelo").val();
+			
+			comentario=$("#comentario").val();
+		
+		var transmisiones;
+		if(document.getElementById('automatica').checked) {
+		transmisiones= "Auto";
+		}else if
+		(document.getElementById('mecanica').checked) {
+		transmisiones= "MC";
+			}
+			veh={"matricula":matricula,
+			"marca":marca,
+			"modelo":modelo,
+			"transmision":transmisiones,
+			"comentario":comentario};
+			
+			datos.vehiculos.push(veh);
+			guardarTodo();
+			mostrarVehiculos();
+			Limpiar();
+		 }
+		 
+		 function mostrarVehiculos(){
+		  destino= document.getElementById('tbDestino');
+		  destino.innerHTML="";
+		  for(x=0;x< datos.vehiculos.length;x++){
+		  veh=datos.vehiculos[x];
+		  tr= document.createElement('tr');
+		  for(key in veh){
+		    prop =veh[key];
+		    td= document.createElement('td');
+		    td.innerHTML = prop;
+			tr.appendChild(td);
+			
+		     }
+			td= document.createElement('td');
+			btn = document.createElement('button');
+			btn.type='button';
+			btn.setAttribute('class','btn btn-danger');
+			btn.innerHTML ="del";
+			btn.setAttribute('onclick','borrarVeh('+x+');');
+			td.appendChild(btn);
+			
+			btn = document.createElement('button');
+			btn.type='button';
+			btn.setAttribute('class','btn btn-warning');
+			btn.innerHTML ="edit";
+			btn.setAttribute('onclick','editVeh('+x+');');
+			td.appendChild(btn);
+			tr.appendChild(td);
+			
+			destino.appendChild(tr);
+		  }
+		 
+		 }
+		 
+		 function editVeh(index){
+			
+			veh_editado= index;
+			veh = datos.vehiculos[index];
+			for (key in veh){
+				$('#'+key).val(veh[key]);			
+			}		 
+			 filtrarModelos(veh,marca);
+			 $("#modelo").val(veh.modelo);
+			 borrarVeh();
+		  }
+		 function guardarTodo(){
+		 localStorage.setItem('asgData',JSON.stringify(datos))
+		 
+		 }
+		 function cargarTodo(){
+		 tmp=localStorage.getItem('asgData');
+		 if(tmp!=null){
+		  datos= JSON.parse(tmp);
+		   }		   		
+		   cargarSelects();		   
+		   mostrarVehiculos();
+		 }
+		 			
+			function cargarSelects(){
+			marca=document.getElementById('marca');
+		    marca.innerHTML="";
+		   for(x=0;x<datos.marcas.length;x++){
+		    opt= document.createElement('option');
+			opt.text =datos.marcas[x];
+			opt.value =datos.marcas[x];
+		   marca.appendChild(opt);
+		   }
+		   marcas.selectedIndex =-1;
+			
+			
+			
+			}
+					
+					
+					
+					function marcas(){
+				for (x = 0; x < datos.marcas.length; x++){
+					addmarca(datos.marca[x]);
+				}
+				tabla.hide('slow');
+				xmarca.show('slow');
+			}
+		
+		function borrarVeh(index){
+		if(confirm("Wey ,compai ¿Esta seguro de querer eliminar el vehiculo? no habra vuelta atras si le das a ´si´.")){
+		datos.vehiculos.splice(index,1);
+		guardarTodo();
+		mostrarVehiculos();
+		         }
+		}
+		
+		function Emarcas(){
+		
+		destino=document.getElementById('divListaDeMarcas');
+		destino.innerHTML="";
+		for(x=0; x < datos.marcas.length;x++){
+		agregarMarcas(datos.marcas[x]);
+		}
+		  $("#divVehiclos").hide('slow');
+		  $("#divMarcas").show('slow');
+		  //$("#divMarcas").show('slow');
+		
+		}
+		
+		function Emodelos(){
+		destino=document.getElementById('divListaDeModelos');
+		destino.innerHTML="";
+		for(M=0; M < datos.modelos.length;M++){
+		agregarModelos(datos.modelos[M]);
+		}
+		
+		  $("#divVehiclos").hide('slow');
+		  $("#divModelos").show('slow');
+
+		
+		}
+		function irAlinicio(){
+
+		
+		 $("#divVehiclos").show('slow');
+		  $("#divMarcas").hide('slow');
+		   $("#divModelos").hide('slow');
+		  
+		
+		}
+		
+		function agregarMarcas(val){
+		div = document.createElement('div');
+		div.setAttribute("class","form-group input-group");
+		span = document.createElement('span');
+		span.setAttribute('class','input-group-addon');
+		span.innerHTML ='X';
+		span.setAttribute('ondblclick','this.parentNode.parentNode.removeChild(this.parentNode);')
+		div.appendChild(span);
+		txt = document.createElement('input');
+		txt.setAttribute('class','form-control');
+		txt.setAttribute('type','text');
+		txt.setAttribute('name','listaMarcas');
+		txt.value= val;
+		div.appendChild(txt);
+		document.getElementById('divListaDeMarcas').appendChild(div);
+		
+		
+		}
+		function guardarMarcas(){
+		
+				marcas = document.getElementsByName('listaMarcas');
+				datos.marcas = [];
+				for(x = 0; x < marcas.length; x++){
+					datos.marcas.push(marcas[x].value);
+				}
+				guardarTodo();
+				cargarSelects();
+	
+			}
+			
+			function dce(e){
+			return document.createElement(e);
+			}
+
+				function agregarModelos(arr_modelo){
+				destino = document.getElementById('divListaDeModelos');
+				tr = dce('tr');
+				td = dce('td');
+				sel = dce('select');
+				for(z=0;z<datos.marcas.length;z++){
+					opt = dce('option');
+					opt.text = datos.marcas[z];
+					opt.value = datos.marcas[z];
+					sel.appendChild(opt);
+			}
+			$(sel).val(arr_modelo[0]);
+			sel.setAttribute('class','form-control');
+			sel.setAttribute('name','mod_marca')
+			td.appendChild(sel);
+			tr.appendChild(td);
+			td = dce('td');
+			
+			txt = dce('input');
+			txt.setAttribute('name','mod_name');
+			txt.setAttribute('class','form-control');
+			txt.value = arr_modelo[1];
+			td.appendChild(txt);
+			tr.appendChild(td);
+			
+			destino.appendChild(tr);
+		 }
+		 
+			function guardarModelos(){
+				marcas = document.getElementsByName('mod_marca');
+				modelos = document.getElementsByName('mod_name');
+				datos.modelos = [];
+				for(x = 0; x < modelos.length; x++){
+					datos.modelos.push([marcas[x].value, modelos[x].value]);
+				}
+				guardarTodo();
+				cargarSelects();
+			
+			}
+			function filtrarModelos(p_marca){
+			destino = document.getElementById('modelo');
+			destino.innerHTML='';
+			for(x=0;x< datos.modelos.length;x++){
+				mod = datos.modelos[x];
+					if(mod[0] == p_marca){
+					  opt= dce('option');
+					  opt.text = mod[1];
+					  opt.value =mod [1];
+					  destino.appendChild(opt);
+					}
+				}
+				destino.selectedIndex = -1;
+			}
+			
+		function Limpiar(){
+		window.location = window.location;
+		
+		}
+	</script>
+</body>
+</html>
